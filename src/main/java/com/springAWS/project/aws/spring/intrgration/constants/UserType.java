@@ -5,12 +5,12 @@ import lombok.Getter;
 @Getter
 public enum UserType {
 
-    ADMIN(1),
-    EDITOR(2),
-    VIEWER(3);
-    private final int userType;
+    ADMIN("ADMIN"),
+    EDITOR("EDITOR"),
+    VIEWER("VIEWER");
+    private final String userType;
 
-    UserType(int userType){
+    UserType(String userType){
         this.userType = userType;
     }
 }

@@ -11,4 +11,6 @@ public interface UserService {
     void deleteUserByUserName(String userName) throws Exception;
 
     User getUserByUserName(String userName);
+
+    String getUserRole(String userName);
 }

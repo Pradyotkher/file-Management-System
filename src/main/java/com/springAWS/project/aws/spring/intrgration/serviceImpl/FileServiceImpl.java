@@ -9,6 +9,7 @@ import com.springAWS.project.aws.spring.intrgration.jpa.FileJPARepository;
 
 import com.springAWS.project.aws.spring.intrgration.jpa.FileLogsJPARepository;
 import com.springAWS.project.aws.spring.intrgration.model.FileLogs;
+import com.springAWS.project.aws.spring.intrgration.model.RequiresRoles;
 import com.springAWS.project.aws.spring.intrgration.model.User;
 import com.springAWS.project.aws.spring.intrgration.service.FileService;
 import com.springAWS.project.aws.spring.intrgration.service.UserService;
@@ -16,6 +17,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -61,17 +63,15 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional
+    @RequiresRoles({UserType.ADMIN , UserType.EDITOR})
+    // Add Logic for Role checking in Authentication Aspect File
     public void uploadFile(String bucketNane, String keyName, Long contentLength, InputStream value , String contentType , byte[] byteArray , String userName) throws Exception {
 
         User currentUser = userService.getUserByUserName(userName);
         if (currentUser == null) {
             throw new FileException(Messages.CANNOT_FIND_USER.getMessage().concat(userName));
         }
-        //  admin can upload the files , i.e. user with userType = 1
-        if (currentUser.getUserType() == UserType.VIEWER.getUserType()) {
-            throw new RuntimeException("User ".concat(userName).concat(Messages.NO_USER_RIGHTS.getMessage()));
-        }
-        log.info("&&&&& " + contentType);
+
         try{
             PutObjectRequest request = PutObjectRequest.builder().key(keyName).bucket(bucketNane).contentType(contentType).build();
             s3Client.putObject(request, RequestBody.fromInputStream(value, contentLength));
@@ -86,6 +86,7 @@ public class FileServiceImpl implements FileService {
 
 
     @Override
+    @RequiresRoles({UserType.ADMIN , UserType.EDITOR,  UserType.VIEWER})
     public void downloadFile(String bucketName, String keyName ,String userName ) throws Exception {
 
         User currentUser = userService.getUserByUserName(userName);
@@ -136,14 +137,14 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    @RequiresRoles({UserType.ADMIN})
+    // Add Logic for Role checking in Authentication Aspect File
     public void deleteFile(String bucketName, String keyName , String userName) throws Exception {
         User currentUser = userService.getUserByUserName(userName);
         if(currentUser == null){
             throw new RuntimeException(Messages.CANNOT_FIND_USER.getMessage());
         }
-        if(currentUser.getUserType() != UserType.ADMIN.getUserType()){
-            throw new RuntimeException(Messages.NO_USER_RIGHTS.getMessage());
-        }
+
         try {
             DeleteObjectRequest request = DeleteObjectRequest.builder().bucket(bucketName).key(keyName).build();
             s3Client.deleteObject(request);

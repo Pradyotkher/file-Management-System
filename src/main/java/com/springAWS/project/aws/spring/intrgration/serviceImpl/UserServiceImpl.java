@@ -1,6 +1,7 @@
 package com.springAWS.project.aws.spring.intrgration.serviceImpl;
 
 import com.springAWS.project.aws.spring.intrgration.constants.Messages;
+import com.springAWS.project.aws.spring.intrgration.constants.UserType;
 import com.springAWS.project.aws.spring.intrgration.jpa.UserJPARepository;
 import com.springAWS.project.aws.spring.intrgration.model.User;
 import com.springAWS.project.aws.spring.intrgration.service.UserService;
@@ -68,5 +69,22 @@ public class UserServiceImpl implements UserService {
         if(users.stream().anyMatch(user -> user.getUserName().equals(userName)))
             return users.stream().filter(user -> user.getUserName().equals(userName)).findFirst().get();
         return null;
+    }
+
+    @Override
+    public String getUserRole(String userName) {
+        User user = getUserByUserName(userName);
+        if(user==null){
+            return null;
+        }
+        if(user.getUserType() == 1){
+            return UserType.ADMIN.getUserType();
+        }
+        else if(user.getUserType() == 2){
+            return UserType.EDITOR.getUserType();
+        }
+        else{
+            return UserType.VIEWER.getUserType();
+        }
     }
 }
