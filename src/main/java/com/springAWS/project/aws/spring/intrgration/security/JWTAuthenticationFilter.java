@@ -1,6 +1,7 @@
 package com.springAWS.project.aws.spring.intrgration.security;
 
 import com.springAWS.project.aws.spring.intrgration.Application;
+import com.springAWS.project.aws.spring.intrgration.constants.UserType;
 import com.springAWS.project.aws.spring.intrgration.model.User;
 import com.springAWS.project.aws.spring.intrgration.service.UserService;
 import jakarta.servlet.FilterChain;
@@ -40,7 +41,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         UserService userService = applicationContext.getBean(UserService.class);
         String userName = request.getParameter("userName");
-        String userRole = (userName!=null) ?userService.getUserRole(userName) : null;
+        String userRole = (userName!=null) ?userService.getUserRole(userName) : UserType.VIEWER.getUserType();
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String jwt = authHeader.substring(7);

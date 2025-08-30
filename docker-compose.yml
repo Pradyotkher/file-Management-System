@@ -1,0 +1,23 @@
+services:
+  mysql-db:
+    image: mysql:8
+    container_name: file_management_docker_compose
+    environment:
+      - MYSQL_ROOT_PASSWORD=MintySameer1973
+      - MYSQL_DATABASE=file-management-database
+      - MYSQL_USER=file-management
+      - MYSQL_PASSWORD=password
+    ports:
+      - "3306:3306"
+
+  spring-app:
+    build: .
+    container_name: aws_spring_app_docker_compose
+    depends_on:
+      - mysql-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/file-management-database
+      - SPRING_DATASOURCE_USERNAME=file-management
+      - SPRING_DATASOURCE_PASSWORD=password
+    ports:
+      - "8080:8080"
